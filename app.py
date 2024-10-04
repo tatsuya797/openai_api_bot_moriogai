@@ -96,7 +96,7 @@ if st.button("テキストファイルを処理する"):
 
     # 整形後のテキストを表示
     st.subheader("整形後のテキスト")
-    cleaned_texts_directory = Path(f'./out_{author_id}/edit/')
+    cleaned_texts_directory = Path(f'./out_{author_id}/edit/')  # ここでauthor_idを使う
     all_cleaned_texts = load_cleaned_texts(cleaned_texts_directory)
     st.text_area("整形後のテキストデータ", all_cleaned_texts, height=300)
 
