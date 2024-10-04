@@ -100,6 +100,16 @@ if st.button("テキストファイルを処理する"):
     all_cleaned_texts = load_cleaned_texts(cleaned_texts_directory)
     st.text_area("整形後のテキストデータ", all_cleaned_texts, height=300)
 
+# 出力先のディレクトリを指定
+output_directory = Path(f'./out_{author_id}/edit/')
+
+# ディレクトリが存在するか確認
+if output_directory.exists():
+    st.success(f"ディレクトリは存在します: {output_directory}")
+else:
+    st.warning(f"ディレクトリは存在しません: {output_directory}")
+
+
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
