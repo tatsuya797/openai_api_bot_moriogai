@@ -84,9 +84,8 @@ if st.button("テキストファイルを処理する"):
 
     # 処理後のテキストを表示
     st.subheader("処理後のテキスト")
-    if processed_df is not None:
-        for index, row in processed_df.iterrows():
-            st.write(row['text'])  # 各行のテキストを表示
+    for processed_file in processed_texts:
+        st.write(processed_file)  # 各処理後のファイル名を表示
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
