@@ -31,7 +31,15 @@ def load_all_texts_from_directory(directory):
     return all_texts
 
 # フォルダ名を指定してテキストを読み込む
-txtfile_129_directory = "txtfile_129"
+txtfile_129_directory = Path("txtfile_129")
+
+# テキストデータを処理する関数
+def process_text_files():
+    # フォルダ内のすべてのテキストファイルを取得
+    text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
+    for text_file in text_files:
+        save_cleanse_text(text_file)  # 前処理関数を呼び出し
+        
 all_mori_ogai_texts = load_all_texts_from_directory(txtfile_129_directory)
 
 # 読み込んだテキストを確認
@@ -69,6 +77,12 @@ def communicate():
 st.title("森鴎外AIアシスタント")
 st.write("森鴎外の作品に基づくチャットボットです。")
 
+# テキストファイルを処理するボタン
+if st.button("テキストファイルを処理する"):
+    process_text_files()  # テキストファイルの処理を実行
+    st.success("テキストファイルの処理が完了しました。")
+    
+# ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
 if st.session_state["messages"]:
