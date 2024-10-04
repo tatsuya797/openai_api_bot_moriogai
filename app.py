@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 import os
 from pathlib import Path
-from text_processing import save_cleanse_text, tx_edit_dir  # tx_edit_dirをインポート
+from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
 
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
@@ -37,15 +37,9 @@ def process_text_files():
     text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
-        
-        # 前処理後のファイル名を生成
-        processed_file_path = Path(tx_edit_dir / f"{text_file.stem}_clns_utf-8.txt")
-        
-        # 前処理後の結果をリストに追加
-        if processed_file_path.exists():
-            with open(processed_file_path, "r", encoding="utf-8") as f:
-                processed_text = f.read()
-                processed_texts.append(processed_text)  # テキストをリストに追加
+        # 前処理後の結果をリストに追加（保存場所に応じて変更）
+        # ここでは仮にファイル名に基づいて読み込んでいますが、実際には適切な処理が必要です。
+        processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
 
     return processed_texts
 
@@ -90,8 +84,8 @@ if st.button("テキストファイルを処理する"):
 
     # 処理後のテキストを表示
     st.subheader("処理後のテキスト")
-    for processed_text in processed_texts:
-        st.write(processed_text)  # 各処理後のテキストを表示
+    for processed_file in processed_texts:
+        st.write(processed_file)  # 各処理後のファイル名を表示
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
@@ -101,6 +95,3 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
-
-
-
