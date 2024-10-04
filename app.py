@@ -3,7 +3,6 @@ import openai
 import os
 from pathlib import Path
 from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
-author_id = '000879'  # 青空文庫の作家番号
 
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
@@ -78,38 +77,15 @@ def communicate():
 st.title("森鴎外AIアシスタント")
 st.write("森鴎外の作品に基づくチャットボットです。")
 
-# 整形後のテキストファイルを読み込む関数
-def load_cleaned_texts(directory):
-    cleaned_texts = ""
-    for file in directory.glob('*.txt'):
-        try:
-            with open(file, "r", encoding="utf-8") as f:
-                cleaned_texts += f.read() + "\n"
-        except UnicodeDecodeError:
-            st.warning(f"ファイル {file} の読み込みに失敗しました。")
-    return cleaned_texts
-
 # テキストファイルを処理するボタン
 if st.button("テキストファイルを処理する"):
-    process_text_files()  # テキストファイルの処理を実行
+    processed_texts = process_text_files()  # テキストファイルの処理を実行
     st.success("テキストファイルの処理が完了しました。")
 
-    # 整形後のテキストを表示
-    st.subheader("整形後のテキスト")
-    cleaned_texts_directory = Path(f'./out_{author_id}/edit/')  # ここでauthor_idを使う
-    all_cleaned_texts = load_cleaned_texts(cleaned_texts_directory)
-    st.text_area("整形後のテキストデータ", all_cleaned_texts, height=300)
-    # 出力先のディレクトリを指定
-    output_directory = Path(f'./out_{author_id}/edit/')
-
-    # ディレクトリが存在するか確認
-    if output_directory.exists():
-        st.success(f"ディレクトリは存在します: {output_directory}")
-    else:
-        st.warning(f"ディレクトリは存在しません: {output_directory}")
-    
-
-
+    # 処理後のテキストを表示
+    st.subheader("処理後のテキスト")
+    for processed_file in processed_texts:
+        st.write(processed_file)  # 各処理後のファイル名を表示
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
