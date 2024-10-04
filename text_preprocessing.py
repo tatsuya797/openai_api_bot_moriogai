@@ -82,8 +82,8 @@ def save_cleanse_text(target_file):
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
         df_tmp_e.to_csv(Path(tx_edit_dir / out_edit_file_nm), sep='\t',
                         encoding='utf-8', index=None, header=write_header)
-    except:
-        print(f'ERROR: {target_file}')
+    except Exception as e:
+        print(f'ERROR: {target_file} - {str(e)}')
 
 
 def main():
