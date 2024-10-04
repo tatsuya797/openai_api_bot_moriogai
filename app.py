@@ -23,6 +23,9 @@ def load_all_texts(folder_path):
 # 森鴎外の作品を格納したフォルダからテキストを読み込む
 all_mori_ogai_texts = load_all_texts("txtfile_129")
 
+st.write("森鴎外テキストデータ")
+st.text_area("テキストデータ",all_mori_ogai_texts,height=300)
+
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
