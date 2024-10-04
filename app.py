@@ -77,15 +77,28 @@ def communicate():
 st.title("森鴎外AIアシスタント")
 st.write("森鴎外の作品に基づくチャットボットです。")
 
+# 整形後のテキストファイルを読み込む関数
+def load_cleaned_texts(directory):
+    cleaned_texts = ""
+    for file in directory.glob('*.txt'):
+        try:
+            with open(file, "r", encoding="utf-8") as f:
+                cleaned_texts += f.read() + "\n"
+        except UnicodeDecodeError:
+            st.warning(f"ファイル {file} の読み込みに失敗しました。")
+    return cleaned_texts
+
 # テキストファイルを処理するボタン
 if st.button("テキストファイルを処理する"):
-    processed_texts = process_text_files()  # テキストファイルの処理を実行
+    process_text_files()  # テキストファイルの処理を実行
     st.success("テキストファイルの処理が完了しました。")
 
-    # 処理後のテキストを表示
-    st.subheader("処理後のテキスト")
-    for processed_file in processed_texts:
-        st.write(processed_file)  # 各処理後のファイル名を表示
+    # 整形後のテキストを表示
+    st.subheader("整形後のテキスト")
+    cleaned_texts_directory = Path(f'./out_{author_id}/edit/')
+    all_cleaned_texts = load_cleaned_texts(cleaned_texts_directory)
+    st.text_area("整形後のテキストデータ", all_cleaned_texts, height=300)
+
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
