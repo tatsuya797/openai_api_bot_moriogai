@@ -4,27 +4,27 @@ import openai
 import os
 import glob
 
-# テキストデータの読み込み関数
+# テキストデータを再帰的に読み込む関数
 @st.cache_data
-def load_all_texts(folder_path):
-    abs_folder_path = os.path.join(os.path.dirname(__file__), folder_path)
-
-    # フォルダ内の全てのテキストファイルを取得
-    text_files = glob.glob(os.path.join(abs_folder_path, "*.txt"))
-    
+def load_all_texts_from_directory(directory):
     all_texts = ""
-    for file_path in text_files:
-        # Shift-JISで読み込む
-        with open(file_path, "r", encoding="shift_jis") as file:
-            all_texts += file.read() + "\n"  # 各ファイルの内容を結合
+    
+    # os.walkを使ってサブフォルダも含めて再帰的に検索
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".txt"):  # テキストファイルのみを対象
+                file_path = os.path.join(root, file)
+                with open(file_path, "r", encoding="utf-8") as f:
+                    all_texts += f.read() + "\n"  # 読み込んだテキストを結合
     
     return all_texts
 
-# 森鴎外の作品を格納したフォルダからテキストを読み込む
-all_mori_ogai_texts = load_all_texts("txtfile_129")
+# フォルダ名を指定してテキストを読み込む
+txtfile_129_directory = "txtfile_129"
+all_mori_ogai_texts = load_all_texts_from_directory(txtfile_129_directory)
 
-st.write("森鴎外テキストデータ")
-st.text_area("テキストデータ",all_mori_ogai_texts,height=300)
+# 読み込んだテキストを確認
+st.write(all_mori_ogai_texts)
 
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
