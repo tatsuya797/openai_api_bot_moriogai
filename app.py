@@ -35,11 +35,24 @@ txtfile_129_directory = Path("txtfile_129")
 def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
     text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
+
     for text_file in text_files:
-        save_cleanse_text(text_file)  # 前処理関数を呼び出し
-        # 前処理後の結果をリストに追加（保存場所に応じて変更）
-        # ここでは仮にファイル名に基づいて読み込んでいますが、実際には適切な処理が必要です。
-        processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
+        # 前処理関数を呼び出し
+        save_cleanse_text(text_file)  
+
+        # 前処理後のファイル名を生成
+        processed_file_path = Path(tx_edit_dir / f"{text_file.stem}_clns_utf-8.txt")
+        
+        # 前処理後の結果をリストに追加
+        if processed_file_path.exists():
+            with open(processed_file_path, "r", encoding="utf-8") as f:
+                processed_text = f.read()
+                processed_texts.append(processed_text)  # テキストをリストに追加
+
+    # 処理後のテキストを表示
+    st.subheader("処理後のテキスト")
+    for text in processed_texts:
+        st.write(text)  # 各テキストを表示
 
     return processed_texts
 
