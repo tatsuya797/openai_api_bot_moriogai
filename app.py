@@ -81,6 +81,11 @@ st.write("森鴎外の作品に基づくチャットボットです。")
 if st.button("テキストファイルを処理する"):
     process_text_files()  # テキストファイルの処理を実行
     st.success("テキストファイルの処理が完了しました。")
+
+# 処理後のテキストを表示
+    st.subheader("処理後のテキスト")
+    for index, row in processed_df.iterrows():
+        st.write(row['text'])  # 各行のテキストを表示
     
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
