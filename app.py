@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 import os
 from pathlib import Path
-from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
+from text_processing import save_cleanse_text, tx_edit_dir  # tx_edit_dirをインポート
 
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
@@ -101,5 +101,6 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
+
 
 
