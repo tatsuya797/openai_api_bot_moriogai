@@ -1,8 +1,8 @@
 import pandas as pd
 from pathlib import Path
 
-author_id = '000879'  # 青空文庫の作家番号
-author_name = '芥川龍之介'  # 青空文庫の表記での作家名
+author_id = '000129'  # 青空文庫の作家番号
+author_name = '森鴎外'  # 青空文庫の表記での作家名
 
 write_title = True  # 2カラム目に作品名を入れるか
 write_header = True  # 1行目をカラム名にするか（カラム名「text」「title」）
