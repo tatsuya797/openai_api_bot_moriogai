@@ -3,6 +3,8 @@ import streamlit as st
 import openai
 import os
 import glob
+from pathlib import Path
+from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
 
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
