@@ -2,20 +2,26 @@
 import streamlit as st
 import openai
 import os
+import glob
 
 # テキストデータの読み込み関数
 @st.cache_data
-def load_text_data(file_path):
-    abs_path = os.path.join(os.path.dirname(__file__), file_path)
-    
-    # 別のエンコーディング（例: shift_jis）を試してみる
-    with open(abs_path, "r", encoding="shift_jis") as file:
-        text_data = file.read()
-    
-    return text_data
+def load_all_texts(folder_path):
+    abs_folder_path = os.path.join(os.path.dirname(__file__), folder_path)
 
-# Toshishunのテキストを読み込む
-text_data = load_text_data("toshishun.txt")
+    # フォルダ内の全てのテキストファイルを取得
+    text_files = glob.glob(os.path.join(abs_folder_path, "*.txt"))
+    
+    all_texts = ""
+    for file_path in text_files:
+        # Shift-JISで読み込む
+        with open(file_path, "r", encoding="shift_jis") as file:
+            all_texts += file.read() + "\n"  # 各ファイルの内容を結合
+    
+    return all_texts
+
+# 森鴎外の作品を格納したフォルダからテキストを読み込む
+all_mori_ogai_texts = load_all_texts("txtfile_129")
 
 st.write("Toshishunのテキストデータ:")
 st.text_area("テキストデータ", text_data, height=300)
@@ -49,8 +55,8 @@ def communicate():
 
 
 # ユーザーインターフェイスの構築
-st.title("My AI Assistant")
-st.write("ChatGPT APIを使ったチャットボットです。")
+st.title("森鴎外AIアシスタント")
+st.write("森鴎外の作品に基づくチャットボットです。")
 
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
