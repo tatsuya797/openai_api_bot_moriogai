@@ -3,6 +3,7 @@ import openai
 import os
 from pathlib import Path
 from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
+author_id = '000879'  # 青空文庫の作家番号
 
 # テキストデータを再帰的に読み込む関数
 @st.cache_data
