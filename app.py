@@ -9,14 +9,23 @@ import glob
 def load_all_texts_from_directory(directory):
     all_texts = ""
     
-    # os.walkを使ってサブフォルダも含めて再帰的に検索
     for root, dirs, files in os.walk(directory):
         for file in files:
-            if file.endswith(".txt"):  # テキストファイルのみを対象
+            if file.endswith(".txt"):
                 file_path = os.path.join(root, file)
-                with open(file_path, "r", encoding="utf-8") as f:
-                    all_texts += f.read() + "\n"  # 読み込んだテキストを結合
-    
+                try:
+                    # まずはutf-8で試す
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        all_texts += f.read() + "\n"
+                except UnicodeDecodeError:
+                    try:
+                        # 次にshift_jisで試す
+                        with open(file_path, "r", encoding="shift_jis") as f:
+                            all_texts += f.read() + "\n"
+                    except UnicodeDecodeError:
+                        # それでも失敗した場合はスキップ
+                        st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
+
     return all_texts
 
 # フォルダ名を指定してテキストを読み込む
