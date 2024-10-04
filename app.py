@@ -33,7 +33,7 @@ txtfile_129_directory = "txtfile_129"
 all_mori_ogai_texts = load_all_texts_from_directory(txtfile_129_directory)
 
 # 読み込んだテキストを確認
-st.text_area("テキストデータ"all_mori_ogai_texts,height=300)
+st.text_area("テキストデータ",all_mori_ogai_texts,height=300)
 
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
