@@ -37,8 +37,9 @@ def process_text_files():
     text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
-        # 前処理後の結果をリストに追加（保存場所に応じて変更）
-        processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
+        # 前処理後のファイル名を組み立て
+        processed_file = Path(f"./out_{author_id}/edit/{text_file.stem}_clns_utf-8.txt")
+        processed_texts.append(processed_file)  # フルパスをリストに追加
 
     return processed_texts
 
@@ -88,7 +89,7 @@ if st.button("テキストファイルを処理する"):
         try:
             with open(processed_file, "r", encoding="utf-8") as f:
                 processed_content = f.read()
-                st.text_area(f"{processed_file}", processed_content, height=200)
+                st.text_area(f"{processed_file.name}", processed_content, height=200)
         except FileNotFoundError:
             st.warning(f"ファイル {processed_file} が見つかりません。")
 
