@@ -37,9 +37,9 @@ def process_text_files():
     text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
-        # 前処理後のファイル名を組み立て
-        processed_file = Path(f"./out_{author_id}/edit/{text_file.stem}_clns_utf-8.txt")
-        processed_texts.append(processed_file)  # フルパスをリストに追加
+        # 前処理後の結果をリストに追加（保存場所に応じて変更）
+        # ここでは仮にファイル名に基づいて読み込んでいますが、実際には適切な処理が必要です。
+        processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
 
     return processed_texts
 
@@ -85,13 +85,7 @@ if st.button("テキストファイルを処理する"):
     # 処理後のテキストを表示
     st.subheader("処理後のテキスト")
     for processed_file in processed_texts:
-        # 実際の処理結果を表示するためにファイルを読み込む
-        try:
-            with open(processed_file, "r", encoding="utf-8") as f:
-                processed_content = f.read()
-                st.text_area(f"{processed_file.name}", processed_content, height=200)
-        except FileNotFoundError:
-            st.warning(f"ファイル {processed_file} が見つかりません。")
+        st.write(processed_file)  # 各処理後のファイル名を表示
 
 # ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
