@@ -32,13 +32,14 @@ def load_all_texts_from_directory(directory):
     return all_texts
 
 # 3. フォルダ名を指定してテキストを読み込む
-txtfile_129_directory = Path("txtfile_129")
+txtfile_129_directory = Path("txtfile_129")  # 正しいパスに変更してください
 
 # 4. テキストデータを処理する関数
 def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
     text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
     for text_file in text_files:
+        st.write(f"Processing file: {text_file}")
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
         # 前処理後のファイル名を組み立て
         processed_file = Path(f"./out_{author_id}/edit/{text_file.stem}_clns_utf-8.txt")
@@ -103,10 +104,7 @@ if st.button("テキストファイルを処理する"):
     processed_texts = process_text_files()  # テキストファイルの処理を実行
     st.success("テキストファイルの処理が完了しました。")
 
-    # 13. 処理後のテキストを表示
-    st.subheader("処理後のテキスト")
-    
-    # 処理後のファイルが存在するか確認
+    # 13. 処理後のディレクトリの存在を確認
     out_edit_dir = Path(f"./out_{author_id}/edit/")
     if out_edit_dir.exists():
         st.write(f"Processed files are expected in: {out_edit_dir}")
@@ -116,10 +114,13 @@ if st.button("テキストファイルを処理する"):
     else:
         st.warning(f"Processed directory {out_edit_dir} does not exist.")
 
-    # 処理後のテキストを表示
+    # 14. 処理後のテキストを表示
+    st.subheader("処理後のテキスト")
+    
     for processed_file in processed_texts:
         # 実際の処理結果を表示するためにファイルを読み込む
         try:
+            st.write(f"Trying to read: {processed_file}")
             with open(processed_file, "r", encoding="utf-8") as f:
                 processed_content = f.read()
                 st.text_area(f"{processed_file.name}", processed_content, height=200)
@@ -128,10 +129,10 @@ if st.button("テキストファイルを処理する"):
         except Exception as e:
             st.warning(f"ファイル {processed_file.name} の読み込み中にエラーが発生しました: {e}")
 
-# 14. ユーザーのメッセージ入力
+# 15. ユーザーのメッセージ入力
 user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-# 15. チャットメッセージの表示
+# 16. チャットメッセージの表示
 if st.session_state["messages"]:
     messages = st.session_state["messages"]
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
