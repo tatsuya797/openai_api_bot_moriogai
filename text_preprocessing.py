@@ -84,6 +84,8 @@ def save_cleanse_text(target_file):
                         encoding='utf-8', index=None, header=write_header)
     except Exception as e:
         print(f'ERROR: {target_file} - {str(e)}')
+        raise e  # 例外を再送出してStreamlitアプリで捕捉可能にする
+
 
 
 def main():
