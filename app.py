@@ -36,20 +36,10 @@ def load_all_texts_from_zip(zip_file):
 def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
     text_files = list(Path("unzipped_files").glob('**/*.txt'))  # サブフォルダも含む
-
-    # 出力先のディレクトリを作成する
-    if not out_dir.exists():
-        out_dir.mkdir(parents=True, exist_ok=True)
-    if not tx_edit_dir.exists():
-        tx_edit_dir.mkdir(parents=True, exist_ok=True)
-
     for text_file in text_files:
-        try:
-            save_cleanse_text(text_file)  # 前処理関数を呼び出し
-            # 前処理後の結果をリストに追加
-            processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 処理後のファイル名をリストに追加
-        except Exception as e:
-            st.error(f"ファイル {text_file} の処理に失敗しました: {e}")
+        save_cleanse_text(text_file)  # 前処理関数を呼び出し
+        # 前処理後の結果をリストに追加
+        processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
 
     return processed_texts
 
