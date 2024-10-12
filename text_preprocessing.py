@@ -1,105 +1,97 @@
-import pandas as pd
+import streamlit as st
+import openai
+import os
 from pathlib import Path
+from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
 
-author_id = '000129'  # 青空文庫の作家番号
-author_name = '森鴎外'  # 青空文庫の表記での作家名
+# テキストデータを再帰的に読み込む関数
+@st.cache_data
+def load_all_texts_from_directory(directory):
+    all_texts = ""
+    
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".txt"):
+                file_path = os.path.join(root, file)
+                try:
+                    # まずはutf-8で試す
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        all_texts += f.read() + "\n"
+                except UnicodeDecodeError:
+                    try:
+                        # 次にshift_jisで試す
+                        with open(file_path, "r", encoding="shift_jis") as f:
+                            all_texts += f.read() + "\n"
+                    except UnicodeDecodeError:
+                        # それでも失敗した場合はスキップ
+                        st.warning(f"ファイル {file_path} の読み込みに失敗しました。")
 
-write_title = True  # 2カラム目に作品名を入れるか
-write_header = True  # 1行目をカラム名にするか（カラム名「text」「title」）
-save_utf8_org = True  # 元データをUTF-8にしたテキストファイルを保存するか
+    return all_texts
 
-out_dir = Path(f'./out_{author_id}/')  # ファイル出力先
-tx_org_dir = Path(out_dir / './org/')  # 元テキストのUTF-8変換ファイルの保存先
-tx_edit_dir = Path(out_dir / './edit/')  # テキスト整形後のファイル保存先
+# フォルダ名を指定してテキストを読み込む
+txtfile_129_directory = Path("txtfile_129")
 
+# テキストデータを処理する関数
+def process_text_files():
+    processed_texts = []  # 処理後のテキストを格納するリスト
+    text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
+    for text_file in text_files:
+        save_cleanse_text(text_file)  # 前処理関数を呼び出し
+        # 前処理後の結果をリストに追加（保存場所に応じて変更）
+        # ここでは仮にファイル名に基づいて読み込んでいますが、実際には適切な処理が必要です。
+        processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
 
-def text_cleanse_df(df):
-    # 本文の先頭を探す（'---…'区切りの直後から本文が始まる前提）
-    head_tx = list(df[df['text'].str.contains(
-        '-------------------------------------------------------')].index)
-    # 本文の末尾を探す（'底本：'の直前に本文が終わる前提）
-    atx = list(df[df['text'].str.contains('底本：')].index)
-    if head_tx == []:
-        # もし'---…'区切りが無い場合は、作家名の直後に本文が始まる前提
-        head_tx = list(df[df['text'].str.contains(author_name)].index)
-        head_tx_num = head_tx[0]+1
-    else:
-        # 2個目の'---…'区切り直後から本文が始まる
-        head_tx_num = head_tx[1]+1
-    df_e = df[head_tx_num:atx[0]]
+    return processed_texts
 
-    # 青空文庫の書式削除
-    df_e = df_e.replace({'text': {'《.*?》': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'［.*?］': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'｜': ''}}, regex=True)
+# 全テキストデータを読み込む
+all_mori_ogai_texts = load_all_texts_from_directory(txtfile_129_directory)
 
-    # 字下げ（行頭の全角スペース）を削除
-    df_e = df_e.replace({'text': {'　': ''}}, regex=True)
+# 読み込んだテキストを確認
+st.text_area("テキストデータ", all_mori_ogai_texts, height=300)
 
-    # 節区切りを削除
-    df_e = df_e.replace({'text': {'^.$': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'^―――.*$': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'^＊＊＊.*$': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'^×××.*$': ''}}, regex=True)
+# Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
+openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
-    # 記号、および記号削除によって残ったカッコを削除
-    df_e = df_e.replace({'text': {'―': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'…': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'※': ''}}, regex=True)
-    df_e = df_e.replace({'text': {'「」': ''}}, regex=True)
+# st.session_stateを使いメッセージのやりとりを保存
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [
+        {"role": "system", "content": st.secrets.AppSettings.chatbot_setting} 
+    ]
 
-    # 一文字以下で構成されている行を削除
-    df_e['length'] = df_e['text'].map(lambda x: len(x))
-    df_e = df_e[df_e['length'] > 1]
+# チャットボットとやりとりする関数
+def communicate():
+    messages = st.session_state["messages"]
+    user_message = {"role": "user", "content": st.session_state["user_input"]}
+    messages.append(user_message)
 
-    # インデックスがずれるので振りなおす
-    df_e = df_e.reset_index().drop(['index'], axis=1)
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
 
-    # 空白行を削除する（念のため）
-    df_e = df_e[~(df_e['text'] == '')]
+    bot_message = response["choices"][0]["message"]
+    messages.append(bot_message)
+    st.session_state["user_input"] = ""  # 入力欄を消去
 
-    # インデックスがずれるので振り直し、文字の長さの列を削除する
-    df_e = df_e.reset_index().drop(['index', 'length'], axis=1)
-    return df_e
+# ユーザーインターフェイスの構築
+st.title("森鴎外AIアシスタント")
+st.write("森鴎外の作品に基づくチャットボットです。")
 
+# テキストファイルを処理するボタン
+if st.button("テキストファイルを処理する"):
+    processed_texts = process_text_files()  # テキストファイルの処理を実行
+    st.success("テキストファイルの処理が完了しました。")
 
-def save_cleanse_text(target_file):
-    try:
-        # ファイルの読み込み
-        print(target_file)
-        # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
-        df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
-        # 元データをUTF-8に変換してテキストファイルを保存
-        if save_utf8_org:
-            out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
-            df_tmp.to_csv(Path(tx_org_dir / out_org_file_nm), sep='\t',
-                          encoding='utf-8', index=None)
-        # テキスト整形
-        df_tmp_e = text_cleanse_df(df_tmp)
-        if write_title:
-            # タイトル列を作る
-            df_tmp_e['title'] = df_tmp['text'][0]
-        out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
-        df_tmp_e.to_csv(Path(tx_edit_dir / out_edit_file_nm), sep='\t',
-                        encoding='utf-8', index=None, header=write_header)
-    except Exception as e:
-        print(f'ERROR: {target_file} - {str(e)}')
-        raise e  # 例外を再送出してStreamlitアプリで捕捉可能にする
+    # 処理後のテキストを表示
+    st.subheader("処理後のテキスト")
+    for processed_file in processed_texts:
+        st.write(processed_file)  # 各処理後のファイル名を表示
 
+# ユーザーのメッセージ入力
+user_input = st.text_input("メッセージを入力してください。", key="user_input", on_change=communicate)
 
-
-def main():
-    tx_dir = Path(author_id + './files/')
-    # zipファイルのリストを作成
-    zip_list = list(tx_dir.glob('*.zip'))
-    # 保存ディレクトリを作成しておく
-    tx_edit_dir.mkdir(exist_ok=True, parents=True)
-    if save_utf8_org:
-        tx_org_dir.mkdir(exist_ok=True, parents=True)
-
-    for target_file in zip_list:
-        save_cleanse_text(target_file)
-
-
-if __name__ == '__main__':
-    main()
+if st.session_state["messages"]:
+    messages = st.session_state["messages"]
+    for message in reversed(messages[1:]):  # 直近のメッセージを上に
+        speaker = "🙂" if message["role"] == "user" else "🤖"
+        st.write(speaker + ": " + message["content"])
