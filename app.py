@@ -2,14 +2,18 @@ import streamlit as st
 import openai
 import os
 from pathlib import Path
+import zipfile
 from text_preprocessing import save_cleanse_text  # 前処理の関数をインポート
 
-# テキストデータを再帰的に読み込む関数
+# ZIPファイルを解凍してテキストデータを再帰的に読み込む関数
 @st.cache_data
-def load_all_texts_from_directory(directory):
+def load_all_texts_from_zip(zip_file):
     all_texts = ""
     
-    for root, dirs, files in os.walk(directory):
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall("unzipped_files")  # 解凍先のディレクトリ
+
+    for root, dirs, files in os.walk("unzipped_files"):
         for file in files:
             if file.endswith(".txt"):
                 file_path = os.path.join(root, file)
@@ -28,23 +32,22 @@ def load_all_texts_from_directory(directory):
 
     return all_texts
 
-# フォルダ名を指定してテキストを読み込む
-txtfile_129_directory = Path("txtfile_129")
-
 # テキストデータを処理する関数
 def process_text_files():
     processed_texts = []  # 処理後のテキストを格納するリスト
-    text_files = list(txtfile_129_directory.glob('**/*.txt'))  # サブフォルダも含む
+    text_files = list(Path("unzipped_files").glob('**/*.txt'))  # サブフォルダも含む
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
-        # 前処理後の結果をリストに追加（保存場所に応じて変更）
-        # ここでは仮にファイル名に基づいて読み込んでいますが、実際には適切な処理が必要です。
+        # 前処理後の結果をリストに追加
         processed_texts.append(f"{text_file.stem}_clns_utf-8.txt")  # 仮の処理
 
     return processed_texts
 
+# ZIPファイル名を指定してテキストを読み込む
+zip_file_path = "000129.zip"
+
 # 全テキストデータを読み込む
-all_mori_ogai_texts = load_all_texts_from_directory(txtfile_129_directory)
+all_mori_ogai_texts = load_all_texts_from_zip(zip_file_path)
 
 # 読み込んだテキストを確認
 st.text_area("テキストデータ", all_mori_ogai_texts, height=300)
