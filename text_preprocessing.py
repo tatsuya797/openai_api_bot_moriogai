@@ -58,29 +58,46 @@ def text_cleanse_df(df):
     # 空白行を削除する（念のため）
     df_e = df_e[~(df_e['text'] == '')]
 
-    # インデックスがずれるので振り直し、文字の長さを求めて新しい列を作成
-    df_e = df_e.reset_index(drop=True)
-    df_e['length'] = df_e['text'].str.len()
-
+    # インデックスがずれるので振り直し、文字の長さの列を削除する
+    df_e = df_e.reset_index().drop(['index', 'length'], axis=1)
     return df_e
 
-def save_cleanse_text(text_file):
-    # テキストファイルをUTF-8で読み込む
-    df = pd.read_csv(text_file, encoding='utf-8', header=None, names=['text'])
-    
-    # テキストを整形する
-    df_cleaned = text_cleanse_df(df)
 
-    # 処理後のテキストファイル名
-    output_file_name = text_file.stem + '_clns_utf-8.txt'
-    output_file_path = tx_edit_dir / output_file_name
+def save_cleanse_text(target_file):
+    try:
+        # ファイルの読み込み
+        print(target_file)
+        # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
+        df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
+        # 元データをUTF-8に変換してテキストファイルを保存
+        if save_utf8_org:
+            out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
+            df_tmp.to_csv(Path(tx_org_dir / out_org_file_nm), sep='\t',
+                          encoding='utf-8', index=None)
+        # テキスト整形
+        df_tmp_e = text_cleanse_df(df_tmp)
+        if write_title:
+            # タイトル列を作る
+            df_tmp_e['title'] = df_tmp['text'][0]
+        out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
+        df_tmp_e.to_csv(Path(tx_edit_dir / out_edit_file_nm), sep='\t',
+                        encoding='utf-8', index=None, header=write_header)
+    except Exception as e:
+        print(f'ERROR: {target_file} - {str(e)}')
 
-    # 整形後のデータをUTF-8で保存
-    df_cleaned[['text']].to_csv(output_file_path, index=False, header=False, encoding='utf-8')
 
+def main():
+    tx_dir = Path(author_id + './files/')
+    # zipファイルのリストを作成
+    zip_list = list(tx_dir.glob('*.zip'))
+    # 保存ディレクトリを作成しておく
+    tx_edit_dir.mkdir(exist_ok=True, parents=True)
     if save_utf8_org:
-        # 元のファイルも保存（UTF-8形式）
-        original_output_path = tx_org_dir / text_file.name
-        df.to_csv(original_output_path, index=False, header=False, encoding='utf-8')
+        tx_org_dir.mkdir(exist_ok=True, parents=True)
 
-    return output_file_path
+    for target_file in zip_list:
+        save_cleanse_text(target_file)
+
+
+if __name__ == '__main__':
+    main()
