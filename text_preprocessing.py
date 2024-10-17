@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from pathlib import Path
 
 author_id = '000129'  # 青空文庫の作家番号
@@ -99,6 +100,12 @@ def save_cleanse_text(target_file):
         # 整形後のデータを保存
         df_tmp_e.to_csv(out_edit_file_path, sep='\t', encoding='utf-8', index=None, header=write_header)
         print(f"処理後のデータが保存されました: {out_edit_file_path}")
+
+        # ディレクトリの存在確認（デバッグ用）
+        if not os.path.exists(tx_edit_dir):
+            print(f"ディレクトリ {tx_edit_dir} が存在しません。")
+        else:
+            print(f"ディレクトリ {tx_edit_dir} は正しく存在します。")
         
     except Exception as e:
         print(f"ERROR: {target_file} - {str(e)}")
