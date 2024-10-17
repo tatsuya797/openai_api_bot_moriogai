@@ -47,10 +47,15 @@ def process_text_files():
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
         # 前処理後のファイルパスを取得
         processed_file = Path('unzipped_files/out_edit/') / f"{text_file.stem}_clns_utf-8.txt"
+        
+        # ファイルが正しく保存されているか確認
         if processed_file.exists():
+            st.write(f"ファイル {processed_file} が正常に作成されました。")
             processed_texts.append(processed_file)
         else:
             st.warning(f"処理後のファイル {processed_file} が存在しません。")
+            st.write(f"保存しようとしたパス: {processed_file}")
+            st.write(f"元のファイル: {text_file}")
 
     return processed_texts
 
