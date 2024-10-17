@@ -66,25 +66,43 @@ def text_cleanse_df(df):
 def save_cleanse_text(target_file):
     try:
         # ファイルの読み込み
-        print(target_file)
+        print(f"処理中のファイル: {target_file}")
+        
         # Pandas DataFrameとして読み込む（cp932で読み込まないと異体字が読めない）
         df_tmp = pd.read_csv(target_file, encoding='cp932', names=['text'])
+        
         # 元データをUTF-8に変換してテキストファイルを保存
         if save_utf8_org:
             out_org_file_nm = Path(target_file.stem + '_org_utf-8.tsv')
-            df_tmp.to_csv(Path(tx_org_dir / out_org_file_nm), sep='\t',
-                          encoding='utf-8', index=None)
+            out_org_file_path = Path(tx_org_dir / out_org_file_nm)
+            
+            # ディレクトリ作成（存在しない場合）
+            tx_org_dir.mkdir(parents=True, exist_ok=True)
+            
+            # 元データを保存
+            df_tmp.to_csv(out_org_file_path, sep='\t', encoding='utf-8', index=None)
+            print(f"元データが保存されました: {out_org_file_path}")
+
         # テキスト整形
         df_tmp_e = text_cleanse_df(df_tmp)
+        
         if write_title:
             # タイトル列を作る
             df_tmp_e['title'] = df_tmp['text'][0]
+        
         out_edit_file_nm = Path(target_file.stem + '_clns_utf-8.txt')
-        df_tmp_e.to_csv(Path(tx_edit_dir / out_edit_file_nm), sep='\t',
-                        encoding='utf-8', index=None, header=write_header)
+        out_edit_file_path = Path(tx_edit_dir / out_edit_file_nm)
+        
+        # ディレクトリ作成（存在しない場合）
+        tx_edit_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 整形後のデータを保存
+        df_tmp_e.to_csv(out_edit_file_path, sep='\t', encoding='utf-8', index=None, header=write_header)
+        print(f"処理後のデータが保存されました: {out_edit_file_path}")
+        
     except Exception as e:
-        print(f'ERROR: {target_file} - {str(e)}')
-
+        print(f"ERROR: {target_file} - {str(e)}")
+        
 
 def main():
     tx_dir = Path(author_id + './files/')
