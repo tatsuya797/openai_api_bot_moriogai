@@ -52,7 +52,7 @@ zip_file_path = "000129.zip"
 
 # 全テキストデータを読み込む（必要に応じて削除）
 # all_mori_ogai_texts = load_all_texts_from_zip(zip_file_path)
-# st.text_area("テキストデータ", all_mori_ogai_texts, height=300)
+st.text_area("テキストデータ", all_mori_ogai_texts, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
