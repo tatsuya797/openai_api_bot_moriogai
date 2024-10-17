@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import openai
 import os
@@ -18,6 +17,10 @@ def load_all_texts_from_zip(zip_file):
 
     text_files = list(unzip_dir.glob('**/*.txt'))
     for file_path in text_files:
+        # __MACOSXフォルダや"._"で始まるファイルを無視する
+        if file_path.name.startswith("._") or "__MACOSX" in str(file_path):
+            continue  # スキップ
+        
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 all_texts += f.read() + "\n"
@@ -37,6 +40,10 @@ def process_text_files():
     text_files = list(unzip_dir.glob('**/*.txt'))  # サブフォルダも含む
     
     for text_file in text_files:
+        # __MACOSXフォルダや"._"で始まるファイルを無視する
+        if text_file.name.startswith("._") or "__MACOSX" in str(text_file):
+            continue  # スキップ
+        
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
         # 前処理後のファイルパスを取得
         processed_file = Path('unzipped_files/out_edit/') / f"{text_file.stem}_clns_utf-8.txt"
@@ -106,4 +113,3 @@ if st.session_state["messages"]:
     for message in reversed(messages[1:]):  # 直近のメッセージを上に
         speaker = "🙂" if message["role"] == "user" else "🤖"
         st.write(speaker + ": " + message["content"])
-
