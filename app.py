@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import openai
 import os
@@ -47,12 +46,16 @@ def process_text_files():
 
     return processed_texts
 
-# ZIPファイル名を指定してテキストを読み込む
-zip_file_path = "000129.zip"
+# すべてのZIPファイルを指定したディレクトリから読み込む
+zip_files_directory = Path("000129/files")
+zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
-# 全テキストデータを読み込む（必要に応じて削除）
-all_mori_ogai_texts = load_all_texts_from_zip(zip_file_path)
-st.text_area("テキストデータ", all_mori_ogai_texts, height=300)
+# 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
+all_akutagawa_ryunosuke_texts = ""
+for zip_file_path in zip_files:
+    all_akutagawa_ryunosuke_texts += load_all_texts_from_zip(zip_file_path) + "\n"
+
+st.text_area("テキストデータ", all_akutagawa_ryunosuke_texts, height=300)
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
