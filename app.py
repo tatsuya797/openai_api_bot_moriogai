@@ -38,13 +38,14 @@ def process_text_files():
     for text_file in text_files:
         save_cleanse_text(text_file)  # 前処理関数を呼び出し
         # 前処理後のファイルパスを取得
-        processed_file = Path('unzipped_files/out_edit/') / f"{text_file.stem}_clns_utf-8.txt"
+        processed_file = Path('out_000129/edit/') / f"{text_file.stem}_clns_utf-8.txt"
         if processed_file.exists():
             processed_texts.append(processed_file)
         else:
             st.warning(f"処理後のファイル {processed_file} が存在しません。")
 
     return processed_texts
+
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
 zip_files_directory = Path("000129/files")
