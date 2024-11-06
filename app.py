@@ -50,7 +50,7 @@ def process_text_files():
     return processed_texts
 
 # すべてのZIPファイルを指定したディレクトリから読み込む
-zip_files_directory = Path("000879/files")
+zip_files_directory = Path("000129/files")
 zip_files = list(zip_files_directory.glob('*.zip'))  # ZIPファイルを取得
 
 # 全テキストデータを読み込む（すべてのZIPファイルに対して処理を行う）
