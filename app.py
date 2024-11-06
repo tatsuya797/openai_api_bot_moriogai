@@ -6,8 +6,8 @@ import zipfile
 import chardet  # エンコーディング自動検出ライブラリ
 from aozora_preprocess import save_cleanse_text  # 前処理の関数をインポート
 
-author_id = '000879'  # 青空文庫の作家番号
-author_name = '芥川龍之介'  # 青空文庫の表記での作家名
+author_id = '000129'  # 青空文庫の作家番号
+author_name = '森鴎外'  # 青空文庫の表記での作家名
 
 # ZIPファイルを解凍してテキストデータを読み込む関数
 @st.cache_data
